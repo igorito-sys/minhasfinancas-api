@@ -7,6 +7,7 @@ import com.dsouza.cursospring.minhasfinancas.exceptions.RegraNegocioException;
 import com.dsouza.cursospring.minhasfinancas.model.entity.Usuario;
 import com.dsouza.cursospring.minhasfinancas.model.repository.UsuarioRepository;
 import com.dsouza.cursospring.minhasfinancas.service.UsuarioService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,11 @@ public class UsuarioServiceImpl implements UsuarioService{
 		if(existe) {
 			throw new RegraNegocioException("Já existe um usuario cadastrado com este email");
 		}
+	}
+
+	@Override
+	public Optional<Usuario> obterPorId(Long id) {
+		return repository.findById(id);
 	}
 
 }

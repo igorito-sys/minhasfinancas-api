@@ -3,10 +3,12 @@ package com.dsouza.cursospring.minhasfinancas.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.dsouza.cursospring.minhasfinancas.exceptions.RegraNegocioException;
 import com.dsouza.cursospring.minhasfinancas.model.entity.Lancamento;
 import com.dsouza.cursospring.minhasfinancas.model.enums.StatusLancamento;
+import com.dsouza.cursospring.minhasfinancas.model.enums.TipoLancamento;
 import com.dsouza.cursospring.minhasfinancas.model.repository.LancamentoRepository;
 import com.dsouza.cursospring.minhasfinancas.service.LancamentoService;
 
@@ -29,6 +31,7 @@ public class LancamentoServiceImpl implements LancamentoService{
 	@Transactional
 	public Lancamento salvar(Lancamento lancamento) {
 		validar(lancamento);
+		lancamento.setStatus(StatusLancamento.PENDENTE);
 		return repository.save(lancamento);
 	}
 
@@ -89,6 +92,27 @@ public class LancamentoServiceImpl implements LancamentoService{
 		if(lancamento.getTipo() == null) {
 			throw new RegraNegocioException("Informe um Tipo de lancamento!");
 		}
+	}
+
+	@Override
+	public Optional<Lancamento> obterPorId(Long id) {
+		return repository.findById(id);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal obterSaldoPorUsuario(Long id) {
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEhUsuario(id,  TipoLancamento.RECEITA);
+		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEhUsuario(id,  TipoLancamento.DESPESA);
+		
+		if(receitas == null) {
+			receitas = BigDecimal.ZERO;
+		}
+		
+		if(despesas == null) {
+			despesas = BigDecimal.ZERO;
+		}
+		return receitas.subtract(despesas);
 	}
 
 }
